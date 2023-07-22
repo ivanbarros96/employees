@@ -13,6 +13,8 @@ Project in t-sql that shows the labor hours worked from M-F, without holidays. B
 3. Exec "part2.sql"
 4. Exec "part3.sql"
 5. Exec "Ejecucion.sql"
+
+
 ![backup2](https://github.com/ivanbarros96/employees/blob/main/imagen_2023-07-22_123404480.png?raw=true)
 
 # Functions
