@@ -22,7 +22,8 @@ Project in t-sql that shows the labor hours worked from M-F, without holidays. B
 
 2.*CalcularDiferenciaDias* Excludes weekends and holidays from the ```[dbo].[DiasFestivos]``` table and then subtracts them
 
-#License
+
+# License
 This project is licensed under the MIT License.
 
 
