@@ -15,7 +15,7 @@ Project in t-sql that shows the labor hours worked from M-F, without holidays. B
 
 
 
-![backup2]([https://github.com/ivanbarros96/employees/blob/main/imagen_2023-07-22_123404480.png?raw=true](https://github.com/ivanbarros96/employees/blob/main/imagen_2023-07-26_000630657.png))
+![backup2](https://github.com/ivanbarros96/employees/blob/main/imagen_2023-07-26_000630657.png?raw=true)
 
 # Functions
 2.*Calcular* extracts all seconds from dates, for holidays use an ```[dbo].[DiasFestivos]``` table and then subtracts them
