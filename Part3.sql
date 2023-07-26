@@ -1,43 +1,16 @@
-CREATE FUNCTION CalcularDiferenciaDias
-(
-    @FechaInicio DATE,
-    @FechaFin DATE
-)
-RETURNS INT
-AS
-BEGIN
-    DECLARE @DiferenciaDias INT;
+UPDATE Caso
+SET Horas_trabajadas = dbo.Calcular(Fecha_inicio,Fecha_fin,Horai_bodega,Horaf_bodega, Horai,Horaf);
+------------------------------------------------------------------------------
+--DECLARE @fechaInicio DATE = '2023-01-03';
+--DECLARE @fechaFin DATE = '2023-01-05';
+--DECLARE @horaInicio1 TIME = '06:30:00';
+--DECLARE @horaFin1 TIME = '16:30:00';
+--DECLARE @horaInicio2 TIME = '15:54:00';
+--DECLARE @horaFin2 TIME = '08:44:00';
 
-    SET @DiferenciaDias = DATEDIFF(DAY, @FechaInicio, @FechaFin);
+--SElect dbo.Calcular(@fechaInicio, @fechaFin, @horaInicio1, @horaFin1, @horaInicio2, @horaFin2) as CantiSegTotal;
+-------------------------------------------------------------------
+UPDATE caso
+SET Horas_trabajadas = FORMAT(Horas_trabajadas / 3600, '00') + ':' + RIGHT('0' + FORMAT(Horas_trabajadas % 3600 / 60, '00'), 2)
 
-    -- Excluir los días de fin de semana (sábados y domingos)
-    SET @DiferenciaDias = @DiferenciaDias - 
-        (2 * (DATEDIFF(WEEK, @FechaInicio, @FechaFin) + 
-              CASE WHEN DATEPART(WEEKDAY, @FechaInicio) = 7 THEN 1 ELSE 0 END) -
-              CASE WHEN DATEPART(WEEKDAY, @FechaFin) = 7 THEN 1 ELSE 0 END) - 
-        (DATEDIFF(WEEK, @FechaInicio, @FechaFin) * 2) +
-        CASE WHEN DATEPART(WEEKDAY, @FechaInicio) = 6 THEN 1 ELSE 0 END;
-
-    -- Excluir los días festivos en Colombia
-    DECLARE @Contador INT = 0;
-    DECLARE @FechaActual DATE = @FechaInicio;
-
-    WHILE @FechaActual <= @FechaFin
-    BEGIN
-        IF EXISTS (SELECT 1 FROM DiasFestivos WHERE Fecha = @FechaActual)
-        BEGIN
-            SET @Contador = @Contador + 1;
-        END
-
-        SET @FechaActual = DATEADD(DAY, 1, @FechaActual);
-    END
-
-    SET @DiferenciaDias = @DiferenciaDias - @Contador;
-
-    IF @DiferenciaDias <= 0
-    BEGIN
-         SET @DiferenciaDias = (@DiferenciaDias * -1);
-    END
-
-    RETURN @DiferenciaDias;
-END;
+select * from caso;
