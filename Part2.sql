@@ -1,3 +1,4 @@
+-- Función para calcular total de segundos entre fechas y horas
 CREATE FUNCTION dbo.Calcular
 (	@fechaInicio DATE,
     @fechaFin DATE,
@@ -10,108 +11,92 @@ CREATE FUNCTION dbo.Calcular
 RETURNS INT
 AS
 BEGIN
+	-- Declarar variables
     DECLARE @totalSegundos INT
 	---------------------------------------------------------------
 	DECLARE @diasHabiles INT = 0;
     DECLARE @currentDate DATE = @fechaInicio;
 	DECLARE @totalSegundosDIF INT = 0;
 	DECLARE @RESULTADO INT
-	
-
-
-
-    -- Calcular el máximo entre los tiempos de inicio
-    DECLARE @horaInicioMax TIME
-    SET @horaInicioMax = IIF(@horaInicio1 > @horaInicio2, @horaInicio1, @horaInicio2)
-
-    -- Calcular el mínimo entre los tiempos de fin
-    DECLARE @horaFinMin TIME
-    SET @horaFinMin = IIF(@horaFin1 < @horaFin2, @horaFin1, @horaFin2)
-
-    -- Calcular la intersección en segundos
-    SET @totalSegundos = DATEDIFF(SECOND, @horaInicioMax, @horaFinMin)
-
-    -- Si la intersección es negativa, usar FULL OUTER JOIN y calcular la unión total en segundos
-    IF @totalSegundos < 0
+	DECLARE @totalSegundos1 INT
+    DECLARE @totalSegundos2 INT
+	DECLARE @DifSegundos INT
+	-- Calcular diferencia en segundos entre hora inicio y fin
+	SET @DifSegundos = DATEDIFF(SECOND, @horaInicio1, @HoraFin1)
+		
+    -- Calcular segundos para fecha de inicio
+    IF NOT EXISTS (SELECT 1 FROM DiasFestivos WHERE Fecha = @fechaInicio)
     BEGIN
-        SET @totalSegundos = 
-            (DATEDIFF(SECOND, @horaInicio1, @horaFin1) +
-            DATEDIFF(SECOND, @horaInicio2, @horaFin2))
+         -- Revisar si rango de hora 2 está dentro de hora 1
+        IF @horaInicio2 > @horaInicio1 AND @horaInicio2 < @horaFin1
+        BEGIN
+            SET @totalSegundos1 = DATEDIFF(SECOND, @horaInicio1, @horaFin1) - DATEDIFF(SECOND, @horaInicio1, @horaInicio2) 
+        END
+        ELSE IF @horaInicio2 >= @horaFin1
+        BEGIN
+            SET @totalSegundos1 = 0
+        END
+        ELSE
+        BEGIN
+            SET @totalSegundos1 = DATEDIFF(SECOND, @horaInicio1, @horaFin1) 
+        END
     END
-	--RETURN @totalSegundos
+    ELSE
+    BEGIN
+        SET @totalSegundos1 = 0
+    END
+    
+   -- Calcular segundos para fecha fin
+    IF NOT EXISTS (SELECT 1 FROM DiasFestivos WHERE Fecha = @fechaFin)
+    BEGIN
+         -- Revisar si rango de hora 2 está dentro de hora 1
+        IF @horaFin2 > @horaInicio1 AND @horaFin2 < @horaFin1 
+        BEGIN
+            SET @totalSegundos2 = DATEDIFF(SECOND, @horaInicio1, @horaFin1) + DATEDIFF(SECOND, @horaFin1, @horaFin2) 
+        END
+        ELSE IF @horaInicio1 >= @horaFin2
+        BEGIN
+            SET @totalSegundos2 = 0
+        END
+        ELSE
+        BEGIN
+            SET @totalSegundos2 = DATEDIFF(SECOND, @horaInicio1, @horaFin1)
+        END
+    END
+    ELSE
+    BEGIN
+        SET @totalSegundos2 = 0
+    END
+	set @totalSegundos =@totalSegundos2 + @totalSegundos1;
+    --RETURN @totalSegundos
 	---------------------------------------------------------------------------------
+	------Calculo dias habiles
 	WHILE @currentDate <= @fechaFin
     BEGIN
-        -- 1 es domingo, 2 es lunes, ..., 7 es sábado
+        -- Revisar si es día hábil
+		-- 1 es domingo, 2 es lunes, ..., 7 es sábado
         IF DATEPART(WEEKDAY, @currentDate) BETWEEN 1 AND 5
         BEGIN
             IF NOT EXISTS (SELECT 1 FROM DiasFestivos WHERE Fecha = @currentDate)
-            BEGIN
+            BEGIN 
+			-- Incrementar fecha  
                 SET @diasHabiles = @diasHabiles + 1;
             END
         END
 
         SET @currentDate = DATEADD(DAY, 1, @currentDate);
     END
-
-    --RETURN @diasHabiles-1;
+	-- Revisar último día
+	IF EXISTS (SELECT 1 FROM DiasFestivos WHERE Fecha = @fechaFin)
+	BEGIN
+	SET @diasHabiles = @diasHabiles + 1;
+	END
+	-- Descontar rangos
+	SET @diasHabiles=@diasHabiles-2;
+    --RETURN @diasHabiles;
 -------------------------------------------------------------------------
-IF EXISTS (SELECT 1 FROM DiasFestivos WHERE Fecha = @fechaFin)
-
- BEGIN
-    DECLARE @horaInicio2_1 TIME = '00:00';
-
-
-	 -- Calcular el máximo entre los tiempos de inicio
-    DECLARE @horaInicioMax_2 TIME
-    SET @horaInicioMax_2 = IIF(@horaInicio1 > @horaInicio2_1, @horaInicio1, @horaInicio2_1)
-
-    -- Calcular el mínimo entre los tiempos de fin
-    DECLARE @horaFinMin_2 TIME
-    SET @horaFinMin = IIF(@horaFin1 < @horaFin2, @horaFin1, @horaFin2)
-
-    -- Calcular la intersección en segundos
-    SET @totalSegundosDIF = DATEDIFF(SECOND, @horaInicioMax_2, @horaFinMin)
-
-    -- Si la intersección es negativa, usar FULL OUTER JOIN y calcular la unión total en segundos
-    IF @totalSegundosDIF <= 0
-    BEGIN
-        SET @totalSegundosDIF = 0
-          
-    END
-	
-
-END
-
-  DECLARE @SegundosInicio INT
-  DECLARE @SegundosFin INT
-  SELECT @SegundosInicio = DATEPART(SECOND, @horaInicio1)
-  SELECT @SegundosFin = DATEPART(SECOND, @HoraFin1)
-  DECLARE @DifSegundos INT
-  SET @DifSegundos = DATEDIFF(SECOND, @horaInicio1, @HoraFin1)
-
-  IF @diasHabiles > 2 AND (@totalSegundos>(8000))
-  BEGIN 
-  SET @RESULTADO = ((@diasHabiles-1)*@DifSegundos)+(@totalSegundos-@totalSegundosDIF)
-		
-  END
-   ELSE IF @diasHabiles <= 2 AND (@totalSegundos<(8000))
-   ------------------2---------------1020 < 36000
-  BEGIN
-    SET @RESULTADO = (@totalSegundos-@totalSegundosDIF)+(@diasHabiles-1)*@DifSegundos
-  END
-  ELSE
-  BEGIN
-  SET @RESULTADO = (@totalSegundos-@totalSegundosDIF)
-  END
-
-
-  IF ((@totalSegundos < 8000 OR @totalSegundos > 30000) AND(@diasHabiles>2))
-  BEGIN 
-   SET @RESULTADO = ((@diasHabiles-2)*@DifSegundos)+(@totalSegundos-@totalSegundosDIF)
-  END
-  
-  --------------------------------------------------------------------------------------------
+	SET @RESULTADO = (@diasHabiles*@DifSegundos)+@totalSegundos;
+ --------------------------------------------------------------------------------------------
 
   RETURN @RESULTADO;
 
