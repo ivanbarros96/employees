@@ -2,8 +2,8 @@
 CREATE FUNCTION dbo.Calcular
 (	@fechaInicio DATE,
     @fechaFin DATE,
-    @horaInicio1 TIME,
-    @horaFin1 TIME,
+    @horaInicio1 TIME,----bodega ini
+    @horaFin1 TIME,-----bodega fin
     @horaInicio2 TIME,
     @horaFin2 TIME
 	
@@ -29,6 +29,7 @@ BEGIN
     BEGIN
          -- Revisar si rango de hora 2 está dentro de hora 1
         IF @horaInicio2 > @horaInicio1 AND @horaInicio2 < @horaFin1
+
         BEGIN
             SET @totalSegundos1 = DATEDIFF(SECOND, @horaInicio1, @horaFin1) - DATEDIFF(SECOND, @horaInicio1, @horaInicio2) 
         END
@@ -98,6 +99,6 @@ BEGIN
 	SET @RESULTADO = (@diasHabiles*@DifSegundos)+@totalSegundos;
  --------------------------------------------------------------------------------------------
 
-  RETURN @RESULTADO;
+  RETURN @resultado;
 
 END
