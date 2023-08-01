@@ -1,4 +1,4 @@
--- Función para calcular total de segundos entre fechas y horas
+-- FunciÃ³n para calcular total de segundos entre fechas y horas
 CREATE FUNCTION dbo.Calcular
 (	@fechaInicio DATE,
     @fechaFin DATE,
@@ -27,7 +27,7 @@ BEGIN
     -- Calcular segundos para fecha de inicio
     IF NOT EXISTS (SELECT 1 FROM DiasFestivos WHERE Fecha = @fechaInicio)
     BEGIN
-         -- Revisar si rango de hora 2 está dentro de hora 1
+         -- Revisar si rango de hora 2 estÃ¡ dentro de hora 1
         IF @horaInicio2 > @horaInicio1 AND @horaInicio2 < @horaFin1
 
         BEGIN
@@ -50,7 +50,7 @@ BEGIN
    -- Calcular segundos para fecha fin
     IF NOT EXISTS (SELECT 1 FROM DiasFestivos WHERE Fecha = @fechaFin)
     BEGIN
-         -- Revisar si rango de hora 2 está dentro de hora 1
+         -- Revisar si rango de hora 2 estÃ¡ dentro de hora 1
         IF @horaFin2 > @horaInicio1 AND @horaFin2 < @horaFin1 
         BEGIN
             SET @totalSegundos2 = DATEDIFF(SECOND, @horaInicio1, @horaFin1) + DATEDIFF(SECOND, @horaFin1, @horaFin2) 
@@ -74,8 +74,8 @@ BEGIN
 	------Calculo dias habiles
 	WHILE @currentDate <= @fechaFin
     BEGIN
-        -- Revisar si es día hábil
-		-- 1 es domingo, 2 es lunes, ..., 7 es sábado
+        -- Revisar si es dÃ­a hÃ¡bil
+		-- 1 es lunes, 2 es martes, ..., 6 es sÃ¡bado
         IF DATEPART(WEEKDAY, @currentDate) BETWEEN 1 AND 5
         BEGIN
             IF NOT EXISTS (SELECT 1 FROM DiasFestivos WHERE Fecha = @currentDate)
@@ -87,7 +87,7 @@ BEGIN
 
         SET @currentDate = DATEADD(DAY, 1, @currentDate);
     END
-	-- Revisar último día
+	-- Revisar Ãºltimo dÃ­a
 	IF EXISTS (SELECT 1 FROM DiasFestivos WHERE Fecha = @fechaFin)
 	BEGIN
 	SET @diasHabiles = @diasHabiles + 1;
